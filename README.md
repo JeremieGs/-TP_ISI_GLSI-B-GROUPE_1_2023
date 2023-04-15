@@ -15,6 +15,7 @@ Lors de la création du compte son solde est nul.
     - a.	Faire un versement sur son compte .
     - b.	Faire un retrait sur son compte si le solde le permet .
     - c.	Faire un virement d’un compte à un autre.
+- ![image](https://github.com/lazycoder02/-TP_ISI_GLSI-B-GROUPE_1_2023/blob/main/EGA.png)
 
 
 
