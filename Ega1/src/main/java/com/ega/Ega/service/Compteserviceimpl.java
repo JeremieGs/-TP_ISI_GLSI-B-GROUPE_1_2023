@@ -1,19 +1,25 @@
 package com.ega.Ega.service;
 
-import com.ega.Ega.modele.Client;
-import com.ega.Ega.modele.Compte;
+import com.ega.Ega.modele.*;
 import com.ega.Ega.repository.Clientrepository;
 import com.ega.Ega.repository.Compterepository;
+import com.ega.Ega.repository.Operationrepository;
+import com.ega.Ega.repository.Virementrepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 @Service
 @AllArgsConstructor
 public class Compteserviceimpl implements Compteservice{
+    //APPEL DES REPOSITORIES
     private final Compterepository compterepository;
     private final Clientrepository clientrepository;
+    private  final Operationrepository operationrepository;
+    private  final Virementrepository virementrepository;
+    //REDEFINITION DES METHODES  ou IMPLEMENTATION
     @Override
     public Compte creer(Compte compte) {
         return compterepository.save(compte);
@@ -61,6 +67,12 @@ public class Compteserviceimpl implements Compteservice{
         }else {
             compte.setSolde(compte.getSolde()+montant);
             compterepository.save(compte);
+            Operation operation=new Operation();
+            operation.setMontant(montant);
+            operation.setCompte(numero);
+            operation.setTypeoperation(Typeoperation.valueOf("VERSEMENT"));
+            operation.setDate(LocalDate.now());
+            operationrepository.save(operation);
             return "le nouveau solde du compte "+numero+" est de  "+compte.getSolde().toString()+"("+montant+") viens d'etre ajouter";
         }
     }
@@ -80,6 +92,12 @@ public class Compteserviceimpl implements Compteservice{
             }
             compte.setSolde(compte.getSolde()-montant);
             compterepository.save(compte);
+            Operation operation=new Operation();
+            operation.setMontant(montant);
+            operation.setCompte(numero);
+            operation.setTypeoperation(Typeoperation.valueOf("RETRAIT"));
+            operation.setDate(LocalDate.now());
+            operationrepository.save(operation);
             return "le nouveau solde est de  "+compte.getSolde().toString()+"("+montant+") viens d'etre retirer";
 
         }
@@ -103,14 +121,23 @@ public class Compteserviceimpl implements Compteservice{
         if (comptePrincipal.getSolde() < montant) {
             return ("Solde insuffisant ("+comptePrincipal.getSolde()+")");
         }
-        double nouveauSoldePrincipal = comptePrincipal.getSolde() - montant;
-        double nouveauSoldeSecondaire = compteSecondaire.getSolde() + montant;
-        comptePrincipal.setSolde(nouveauSoldePrincipal);
-        compteSecondaire.setSolde(nouveauSoldeSecondaire);
-        compterepository.save(comptePrincipal);
-        compterepository.save(compteSecondaire);
-        double newsolde=comptePrincipal.getSolde()-montant;
-        return "votre nouveau solde est de "+newsolde;
+        else {
+            double nouveauSoldePrincipal = comptePrincipal.getSolde() - montant;
+            double nouveauSoldeSecondaire = compteSecondaire.getSolde() + montant;
+            comptePrincipal.setSolde(nouveauSoldePrincipal);
+            compteSecondaire.setSolde(nouveauSoldeSecondaire);
+            compterepository.save(comptePrincipal);
+            compterepository.save(compteSecondaire);
+            double newsolde=comptePrincipal.getSolde()-montant;
+            //ENREGISTREMENT DES VIREMENTS
+            Virement virement=new Virement();
+            virement.setPrincipal(numeroprincipal);
+            virement.setSecondaire(numerosecondaire);
+            virement.setMontant(montant);
+            virement.setDate(LocalDate.now());
+            virementrepository.save(virement);
+            return "votre nouveau solde est de "+newsolde;
+        }
     }
 
     @Override

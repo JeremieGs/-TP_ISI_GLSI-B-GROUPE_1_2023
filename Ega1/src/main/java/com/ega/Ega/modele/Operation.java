@@ -11,16 +11,15 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @NoArgsConstructor
-@Table(name = "Virement")
-
-public class Virement {
-
+@Table(name = "Operation")
+public class Operation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String principal;
-    private String secondaire;
+    private String compte;
+    @Enumerated(EnumType.STRING)
+    private Typeoperation typeoperation;
     private double montant;
-    private LocalDate date;
+    private LocalDate  date;
 }
