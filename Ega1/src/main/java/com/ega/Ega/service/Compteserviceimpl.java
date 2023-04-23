@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
+
 @Service
 @AllArgsConstructor
 public class Compteserviceimpl implements Compteservice{
@@ -108,20 +110,20 @@ public class Compteserviceimpl implements Compteservice{
     public String virement(String numeroprincipal, String numerosecondaire, double montant) {
         Compte comptePrincipal = compterepository.findByNumeroCompte(numeroprincipal);
         if(comptePrincipal == null){
-            return ("compte principale ("+numeroprincipal+")(->) introuvable");
+            throw new RuntimeException ("compte principale ("+numeroprincipal+")(->) introuvable");
         }
-
         Compte compteSecondaire = compterepository.findByNumeroCompte(numerosecondaire);
         if(compteSecondaire == null){
-            return ("compte secondaire ("+numerosecondaire+")<- introuvable");
+            throw new RuntimeException ("compte secondaire ("+numerosecondaire+")<- introuvable");
         }
         if(montant<0){
-            return ( "MONTANT DE VIREMENT NE PEUT PAS ETRE NEGATIF");
+            throw new RuntimeException ( "MONTANT DE VIREMENT NE PEUT PAS ETRE NEGATIF");
         }
         if (comptePrincipal.getSolde() < montant) {
-            return ("Solde insuffisant ("+comptePrincipal.getSolde()+")");
-        }
-        else {
+            throw new RuntimeException ("Solde insuffisant ("+comptePrincipal.getSolde()+")");
+        } else if (Objects.equals(numeroprincipal, numerosecondaire)) {
+            throw new RuntimeException("vous ne pouvez pas efectuer un virement sur le meme compte");
+        } else {
             double nouveauSoldePrincipal = comptePrincipal.getSolde() - montant;
             double nouveauSoldeSecondaire = compteSecondaire.getSolde() + montant;
             comptePrincipal.setSolde(nouveauSoldePrincipal);
