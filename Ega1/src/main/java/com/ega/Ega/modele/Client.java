@@ -31,7 +31,7 @@ public class Client {
     @Column(nullable = false)
     private String nom;
     @NotEmpty(message = "Ce champ est obligatoire")
-    @NotBlank(message = "Entrez  un prenom valide")
+    @NotBlank(message = "Entrez un prenom valide")
     @Column(nullable = false)
     private String prenom;
     @NotEmpty(message = "Ce champ est obligatoire")
